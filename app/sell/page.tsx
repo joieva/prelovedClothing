@@ -30,7 +30,12 @@ const SellPage = () => {
           <div className="w-full h-48 border-2 border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center bg-gray-50">
             <span className="text-4xl">📸</span>
             <p className="text-sm text-gray-500 mt-2">Upload or Take Photo</p>
-            <input type="file" accept="image/*" className="opacity-0 absolute h-48 w-full cursor-pointer" />
+            <input 
+			  type="file" 
+			  accept="image/*" 
+			  onChange={handleFileChange}
+			  className="opacity-0 absolute h-48 w-full cursor-pointer" 
+			/>
           </div>
 
           {/* Title */}
@@ -85,19 +90,43 @@ const SellPage = () => {
     </div>
   );
 };
-const handleUpload = async () => {
-  const { data, error } = await supabase
-    .from('products')
-    .insert([
-      { 
-        title: formData.title, 
-        category: formData.category, 
-        price: formData.price, 
-        condition: formData.condition 
-      }
-    ]);
+const [file, setFile] = useState(null);
 
-  if (error) alert("Error uploading!");
-  else alert("Item posted successfully!");
+const handleFileChange = (e) => {
+  setFile(e.target.files[0]);
+};
+
+const handleUpload = async () => {
+  if (!file) return alert("Please select an image!");
+
+  // 1. Upload the file to Supabase Storage
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Math.random()}.${fileExt}`;
+  const filePath = `items/${fileName}`;
+
+  const { data: uploadData, error: uploadError } = await supabase.storage
+    .from('clothing-images')
+    .upload(filePath, file);
+
+  if (uploadError) return alert("Image upload failed!");
+
+  // 2. Get the public URL of that image
+  const { data: urlData } = supabase.storage
+    .from('clothing-images')
+    .getPublicUrl(filePath);
+
+  // 3. Save everything to the Database
+  const { error: dbError } = await supabase
+    .from('products')
+    .insert([{ 
+      title: formData.title, 
+      price: formData.price,
+      category: formData.category,
+      sub_category: formData.subCategory,
+      image_url: urlData.publicUrl // Now using the REAL URL!
+    }]);
+
+  if (dbError) alert("Database error: " + dbError.message);
+  else alert("Listing posted with photo!");
 };
 export default SellPage;
