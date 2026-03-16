@@ -1,7 +1,26 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Navbar from '@/components/Navbar'; // Adjust path if needed
+import './globals.css';
 
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <body>
+        <Navbar />
+        {/* The 'children' is where your Sell, Profile, and Home pages will appear */}
+        <main className="min-h-screen">
+          {children}
+        </main>
+      </body>
+    </html>
+  );
+}
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
