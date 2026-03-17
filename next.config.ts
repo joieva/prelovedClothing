@@ -9,4 +9,4 @@ const nextConfig: NextConfig = {
   // We removed the 'eslint' key because Next.js handles it differently now
 };
 
-export default nextConfig;
+export default nextConfig; 
