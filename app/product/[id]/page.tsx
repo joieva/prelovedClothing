@@ -1,7 +1,7 @@
 'use client';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../../supabaseClient';
 export default function ProductDetail() {
   const { id } = useParams();
   const [item, setItem] = useState<any>(null);
